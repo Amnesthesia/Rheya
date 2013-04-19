@@ -257,7 +257,10 @@ class Quotes
     @db.results_as_hash = true
     @debug = true
     @twit = Twitter::Client.new(
-      
+      :consumer_key => "9x9TByi4BjzXs9N1Oyv3gA",
+      :consumer_secret => "3NfBK7yhwHZLz4ZOAyLZ6aN6amaB55nNCNph48PGs",
+      :oauth_token => "1363095884-N9tj5FR3iFb2Sokhxi59WLxwRoF1AOWPVZ4uydr",
+      :oauth_token_secret => "360KsViDUl7P7ajTmxBYqzNxkW2BnWKAl30Y2Umy4"
     )
     @last_mention = nil
     
@@ -394,7 +397,7 @@ bot = Cinch::Bot.new do
     
     # Set up server
     conf.server = "irc.codetalk.io"
-    conf.channels = ["#rheya"]
+    conf.channels = ["#lobby"]
     conf.port = 6697
     conf.ssl.use = true
     
