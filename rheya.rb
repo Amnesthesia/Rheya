@@ -164,7 +164,6 @@ class RheyaSpeak
     
     if msg =~ /!speak\s.+/
       msg.slice! "!speak "
-      puts "Removed !speak"
     end
     
     if msg.match(/^\w+\s+\w+.+/)
@@ -177,7 +176,7 @@ class RheyaSpeak
       prev_word = msg
     end
     
-    sentence.capitalize!
+    
     i = 0
     
     # Loop with a 1 in 10 chance of ending to construct a randomly sized sentence
@@ -188,8 +187,8 @@ class RheyaSpeak
       puts " added %s" %prev_word
       i += 1
       
-    end while Random.rand(10) != 8 and prev_word != "."
-    
+    end while Random.rand(25) != 8 and prev_word != "."
+    sentence.capitalize!
     message.reply sentence
   end
   
@@ -198,7 +197,7 @@ class RheyaSpeak
     prev_word = @db.get_first_value("SELECT word FROM words ORDER BY RANDOM() LIMIT 1;")
     sentence = prev_word
     
-    sentence.capitalize!
+    
     i = 0
     
     # Loop with a 1 in 10 chance of ending to construct a randomly sized sentence
@@ -209,8 +208,9 @@ class RheyaSpeak
       
       i += 1
       
-    end while Random.rand(10) != 8 and prev_word != "."
+    end while Random.rand(25) != 8 and prev_word != "."
     
+    sentence.capitalize!
     message.reply sentence
   end
   
@@ -257,7 +257,10 @@ class Quotes
     @db.results_as_hash = true
     @debug = true
     @twit = Twitter::Client.new(
-      
+      :consumer_key => "9x9TByi4BjzXs9N1Oyv3gA",
+      :consumer_secret => "3NfBK7yhwHZLz4ZOAyLZ6aN6amaB55nNCNph48PGs",
+      :oauth_token => "1363095884-N9tj5FR3iFb2Sokhxi59WLxwRoF1AOWPVZ4uydr",
+      :oauth_token_secret => "360KsViDUl7P7ajTmxBYqzNxkW2BnWKAl30Y2Umy4"
     )
     @last_mention = nil
     
