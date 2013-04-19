@@ -257,10 +257,7 @@ class Quotes
     @db.results_as_hash = true
     @debug = true
     @twit = Twitter::Client.new(
-      :consumer_key => "9x9TByi4BjzXs9N1Oyv3gA",
-      :consumer_secret => "3NfBK7yhwHZLz4ZOAyLZ6aN6amaB55nNCNph48PGs",
-      :oauth_token => "1363095884-N9tj5FR3iFb2Sokhxi59WLxwRoF1AOWPVZ4uydr",
-      :oauth_token_secret => "360KsViDUl7P7ajTmxBYqzNxkW2BnWKAl30Y2Umy4"
+      
     )
     @last_mention = nil
     
@@ -282,7 +279,7 @@ class Quotes
     msg = message.message
     
     if msg =~ /!quote\s.+/
-      msg.slice! "!quote"
+      msg.slice! "!quote "
     end
     @db.execute("INSERT INTO quotes VALUES(NULL,?)",msg)
     
@@ -303,7 +300,7 @@ class Quotes
   def tweet(message)
     msg = message.message
     
-    if msg =~ /!quote\s.+/
+    if msg =~ /!tweet\s.+/
       msg.slice! "!tweet "
     end
     
