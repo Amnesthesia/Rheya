@@ -16,6 +16,10 @@ class RheyaSpeak
   match /!speak\s+.+/, { method: :construct_sentence }
   match "I love you", { method: :random_sentence }
   
+  # Speak every 1h 15min
+  timer 4400, method: :random_sentence
+  
+  
   
   def initialize(*args)
     super
@@ -232,13 +236,18 @@ end
 class Quotes
   include Cinch::Plugin
   
-  attr_accessor :debug, :db, :twit
+  attr_accessor :debug, :db, :twit, :last_mention
 
   debug = true
 
   match /!quote\s.+/, { method: :add_quote }
   match "!quote", {method: :random_quote }
   match /!tweet\s.+/, { method: :tweet }
+  match /!reply\s.+/, { method: :reply }
+  match /!follow\s.+/, { method: :follow }
+  match /!last/, { method: :last_mentioned }
+  match /!read\s.+/, {method: :read }
+  timer 600, method: :last_mentioned
   
   
   
@@ -248,11 +257,9 @@ class Quotes
     @db.results_as_hash = true
     @debug = true
     @twit = Twitter::Client.new(
-      :consumer_key => "9x9TByi4BjzXs9N1Oyv3gA",
-      :consumer_secret => "3NfBK7yhwHZLz4ZOAyLZ6aN6amaB55nNCNph48PGs",
-      :oauth_token => "1363095884-N9tj5FR3iFb2Sokhxi59WLxwRoF1AOWPVZ4uydr",
-      :oauth_token_secret => "360KsViDUl7P7ajTmxBYqzNxkW2BnWKAl30Y2Umy4"
+      
     )
+    @last_mention = nil
     
     # If our tables dont exist, lets set them up :)
     create_structure
@@ -299,6 +306,81 @@ class Quotes
     
     @twit.update(msg)  
   end
+  
+  def last_mentioned(message)
+    
+    if @last_mentioned != nil
+      tweets = @twit.mentions_timeline({ since_id: @last_mentioned.id })
+    else
+      tweets = @twit.mentions_timeline
+    end
+    
+    if tweets.empty? or tweets.count < 1
+      message.reply "Nobody's talking to me .. Everybody hates me :("
+    end
+    
+    tweets.map do |t|
+      from = t.from_user.capitalize
+      answer = from + " said: " + t.text
+      puts answer
+      message.reply answer
+    end
+    
+    @last_mentioned = tweets.first
+    
+  end
+  
+  def follow(message)
+    msg = message.message
+    
+    if msg =~ /!follow\s.+/
+      msg.slice! "!follow "
+    end  
+    
+    if msg =~ /@/
+      msg.slice! "@"
+    end
+    
+    if msg =~ /\s/
+      msg = msg.split(/\s+/)
+      msg.each do |m|
+        puts "Attempting to follow %s" % m
+        @twit.follow(m)
+        message.reply "Followed %s" % m
+      end
+    else
+      puts "Attempting to follow %s" % msg
+      @twit.follow(msg)
+      message.reply "Followed %s" % msg
+    end
+    
+    
+  end
+  
+  
+  def reply(message)
+    msg = message.message
+    
+    if msg =~ /!reply\s.+/
+      msg.slice! "!reply "
+    end
+    
+    mess = "@" + @last_mentioned.from_user + " " + msg 
+    @twit.update(mess)
+  end
+  
+  def read(message)
+    msg = message.message
+    
+    if msg =~ /!read\s.+/
+      msg.slice! "!read "
+    end 
+    
+    tweet = @twit.user_timeline(msg)
+    
+    message.reply tweet.first.text
+  end
+  
 end
 
 
@@ -312,7 +394,7 @@ bot = Cinch::Bot.new do
     
     # Set up server
     conf.server = "irc.codetalk.io"
-    conf.channels = ["#lobby"]
+    conf.channels = ["#rheya"]
     conf.port = 6697
     conf.ssl.use = true
     
